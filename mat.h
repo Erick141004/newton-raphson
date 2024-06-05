@@ -9,3 +9,5 @@ double cos(double);
 double ln(double);
 double exp(double);
 double sqrt(double);
+
+double taylor(double);
