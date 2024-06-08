@@ -8,5 +8,8 @@ struct zero{
 };
 
 Newton newton_criar(double (*funcao_calculo)(double), double, int);
+Zero zero_criar(int);
 Status newton_procurar_zero(Newton, double*, Zero, int);
+double derivada_numerica(double(*funcao)(double), double);
+double newton_raphson(double, double, double);
 void newton_destruir(Newton);
