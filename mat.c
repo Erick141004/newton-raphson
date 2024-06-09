@@ -84,16 +84,17 @@ double exp(double x){
 }
 
 double ln(double x){
+    //para o ln, primeiro devemos verificar a condicao de existencia do logaritmo, onde deve ser maior ou igual a 0
     if (x <= 0){
         return VALOR_ERRO;
     }else{
         double soma = 0.0; 
         double termo = 1.0; 
         int cont = 1;
-
-        //para o exponencial, podemos fazer algo parecido, ja que com o x0 igual a 0
-        //o nosso somatorio seria a multiplicacao de x/n, onde teriamos os nossos termos
-        //da serie de taylor
+        
+        //o nosso somatorio seria o termo dividido pelo i(cont) que estamos no momento
+        //cada termo se da pela divisao entre o x que estamos verificando -1 dividido pelo proprio x
+        //o nosso x0 escolhido é 1, por isso a representacao dele na multiplicacao
         while(absolute(termo) > TOLERANCIA_MAX){
             termo *= (x - 1) / x; 
             soma += termo / cont;
@@ -105,6 +106,7 @@ double ln(double x){
 }
 
 double sqrt(double x){
+    //da mesma forma que o ln, devemos verificar a condicao de existencia da raiz, onde deve ser maior do que 0
     if(x < 0){
         return VALOR_ERRO;
     }else{
@@ -112,9 +114,7 @@ double sqrt(double x){
         double termo = 1.0; 
         int cont = 1;
 
-        //para a raiz quadrada, podemos 
-        //o nosso somatorio seria a multiplicacao, onde teriamos os nossos termos
-        //da serie de taylor
+        //o nosso somatorio se da pela multiplicacao entre o nosso -x(2i + 1)/(2(i+1))
         while(absolute(termo) > TOLERANCIA_MAX){
             termo *= -(x * (2 * cont + 1)) / (2 * (cont + 1));
             soma += termo;
