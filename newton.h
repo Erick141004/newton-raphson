@@ -1,3 +1,6 @@
+#ifndef NEWTON_H
+#define NEWTON_H
+
 typedef struct newton *Newton;
 typedef enum {ERRO, SUCESSO} Status;
 typedef struct zero *Zero;
@@ -13,3 +16,6 @@ Status newton_procurar_zero(Newton, double*, Zero, int);
 double derivada_numerica(double(*funcao)(double), double);
 double newton_raphson(double, double, double);
 void newton_destruir(Newton);
+
+#endif
+

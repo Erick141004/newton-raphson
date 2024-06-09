@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdbool.h>
+#include "mat.h"
 
 double potencia(double value, int iteracoes){ //levando em consideracao que nao tempos potencias de numeros fracionarios
     double result = 1.0;
-    for(int i = 0; i < iteracoes - 1; i++){
+    for(int i = 0; i < iteracoes; i++){
         result *= value;
     }
 
@@ -15,10 +15,12 @@ double absolute(double x){
     return x > 0 ? x : -x;
 }
 
+//apos alguns testes, essa funcao generica criada para a serie de taylor não foi possivel calcular
+//os valores corretamente, entao tive que pensar em outra maneira para o calculo das funcoes
 double taylor(double x, int x0, double *derivadas, int qtd_derivadas){
     double valor_taylor = 0;
     long int fatorial = 0;
-    int iteracoes = 15; //melhor valor possivel encontrado para a quantidade de iteracoes
+    int iteracoes = 15;
 
     for(int i = 0; i < iteracoes; i++){
         if(i == 0) 
@@ -32,67 +34,94 @@ double taylor(double x, int x0, double *derivadas, int qtd_derivadas){
     return valor_taylor;
 }
 
-double *derivada_sqrt(int qtd_derivadas){ //essa funcao ja esta subentendida que usaremos raiz de x em torno do ponto 1
-    double *derivadas = malloc(qtd_derivadas * sizeof(double));
-    derivadas[0] = 1;
-    derivadas[1] = 0.5;
-
-    for(int i = 2; i < qtd_derivadas; i++){
-        derivadas[i] = derivadas[i - 1] * (0.5 - (i - 1));
-    }
-
-    return derivadas;
-}
-
-double *derivadas_ln(int qtd_derivadas){ //essa funcao ja esta subentendida que usaremos ln x em torno do ponto 1
-    double* derivadas = malloc(qtd_derivadas * sizeof(double));
-
-    derivadas[0] = 0;
-    derivadas[1] = 1;
-
-    for(int i = 2; i < qtd_derivadas; i++){
-        derivadas[i] = (i - 1) * derivadas[i - 1] * -1;
-    }
-
-    return derivadas;
-}
-
 double sin(double x){
-    double derivadas_sin[4] = {0, 1, 0, -1};
-    return taylor(x, 0, derivadas_sin, 4);
+    double termo = x;
+    double soma = termo;
+    int cont = 1;
+
+    //com o termo comecando com o valor que queremos encontrar, temos o somatorio 
+    //da serie de taylor de sin sendo representado por: -x^2/(2*n) * (2*n + 1)
+    while (absolute(termo) > TOLERANCIA_MAX) {
+        termo *= -potencia(x, 2) / ((2 * cont) * (2 * cont + 1));
+        soma += termo;
+        cont++;
+    }
+
+    return soma;
 }
 
 double cos(double x){
-    double derivadas_cos[4] = {1, 0, -1, 0};
-    return taylor(x, 0, derivadas_cos, 4);
+    double termo = 1.0;
+    double soma = termo;
+    int cont = 1;
+
+    //com o termo comecando em um, temos o somatorio da serie de taylor de cos
+    //sendo representado por: -x^2/(2*n - 1) * (2*n)
+    while (absolute(termo) > 1e-15) {
+        termo *= -potencia(x, 2) / ((2 * cont - 1) * (2 * cont));
+        soma += termo;
+        cont++;
+    }
+
+    return soma;
 }
 
 double exp(double x){
-    double derivadas_e[1] = {1}; 
-    return taylor(x, 0, derivadas_e, 1);
+    double termo = 1.0;
+    double sum = termo;
+    int n = 1;
+
+    //para o exponencial, podemos fazer algo parecido, ja que com o x0 igual a 0
+    //o nosso somatorio seria a multiplicacao de x/n, onde teriamos os nossos termos
+    //da serie de taylor
+    while (absolute(termo) > TOLERANCIA_MAX) {
+        termo *= x / n;
+        sum += termo;
+        n++;
+    }
+
+    return sum;
 }
 
 double ln(double x){
     if (x <= 0){
-        return -1;
+        return VALOR_ERRO;
     }else{
-        double *derivadas = derivadas_ln(15);
-        double value = taylor(x, 1, derivadas, 15);
-        free(derivadas);
+        double soma = 0.0; 
+        double termo = 1.0; 
+        int cont = 1;
 
-        return value;
+        //para o exponencial, podemos fazer algo parecido, ja que com o x0 igual a 0
+        //o nosso somatorio seria a multiplicacao de x/n, onde teriamos os nossos termos
+        //da serie de taylor
+        while(absolute(termo) > TOLERANCIA_MAX){
+            termo *= (x - 1) / x; 
+            soma += termo / cont;
+            cont++;
+        }
+
+        return soma;
     }
 }
 
 double sqrt(double x){
     if(x < 0){
-        return -1;
+        return VALOR_ERRO;
     }else{
-        double *derivadas = derivada_sqrt(15);
-        double value= taylor(x, 1, derivadas, 15);
-        free(derivadas);
+        double soma = 0.0; 
+        double termo = 1.0; 
+        int cont = 1;
 
-        return value;
+        //para a raiz quadrada, podemos 
+        //o nosso somatorio seria a multiplicacao, onde teriamos os nossos termos
+        //da serie de taylor
+        while(absolute(termo) > TOLERANCIA_MAX){
+            termo *= -(x * (2 * cont + 1)) / (2 * (cont + 1));
+            soma += termo;
+            cont++;
+        }
+
+        return soma;
     }  
 }
 
